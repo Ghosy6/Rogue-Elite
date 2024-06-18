@@ -1,0 +1,93 @@
+#statusBar{
+    width: 904px;
+    height: 70px;
+    background: black;
+    color: red;
+    text-align: center;
+    font-size: 25px;
+}
+
+.statusItems{
+    margin: 40px;
+}
+
+#main {
+    display: grid;
+    grid-template-columns: repeat(90, auto);
+    grid-template-rows: repeat(90, auto);
+    border: 3px black solid;
+    width: 900px;
+    height: 850px;
+    }
+
+.boxItem {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+    border: 1px solid grey;
+    box-sizing: border-box;
+    }
+
+.player {
+   position: relative;
+    
+}
+
+.player:before{
+    width: 360%;
+    height: 360%;
+    content: " ";
+    position: absolute;
+    background-image: url("knight.jpg");
+    background-position: center;
+    background-size: 130%;
+    overflow: visible;
+    top: -11px;
+    left: -11px;
+}
+
+.playerArea {
+    background-color: rgb(9, 107, 74);
+}
+
+.enemy {
+    position: relative;
+}
+
+.skeleton {
+    position: relative;
+}
+
+.skeleton:before {
+    width: 360%;
+    height: 360%;
+    content: " ";
+    position: absolute;
+    background-image: url("skeleton.jpg");
+    background-position: center;
+    background-size: 130%;
+    overflow: visible;
+    top: -10px;
+    left: -10px;
+}
+
+.ghost {
+    position: relative;
+}
+
+.ghost:before {
+    width: 360%;
+    height: 360%;
+    content: " ";
+    position: absolute;
+    background-image: url("ghost.jpg");
+    background-position: center;
+    background-size: 130%;
+    overflow: visible;
+    top: -10px;
+    left: -10px;
+}
+
+.enemyArea{
+    background-color: red;
+}
