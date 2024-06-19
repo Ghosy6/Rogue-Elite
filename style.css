@@ -18,14 +18,21 @@
     border: 3px black solid;
     width: 900px;
     height: 850px;
+    background-image: url("background.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
     }
 
 .boxItem {
     display: inline-block;
     padding: 0;
     margin: 0;
-    border: 1px solid grey;
+   /* border: 1px solid grey; */
     box-sizing: border-box;
+    background-color: black;
+    border-radius: 5%;
+    opacity: 1;
     }
 
 .player {
@@ -54,11 +61,11 @@
     position: relative;
 }
 
-.skeleton {
+.skeleton, .ghost, .bat, .ninja .dragon {
     position: relative;
 }
 
-.skeleton:before {
+.skeleton:before, .ghost:before, .bat:before, .ninja:before, .dragon:before {
     width: 360%;
     height: 360%;
     content: " ";
@@ -71,23 +78,27 @@
     left: -10px;
 }
 
-.ghost {
-    position: relative;
+.ghost:before {
+   background-image: url("ghost.jpg");
 }
 
-.ghost:before {
-    width: 360%;
-    height: 360%;
-    content: " ";
-    position: absolute;
-    background-image: url("ghost.jpg");
-    background-position: center;
-    background-size: 130%;
-    overflow: visible;
-    top: -10px;
-    left: -10px;
-}
+.bat:before {
+    background-image: url("bat.png");
+ }
+
+ .ninja:before{
+    background-image: url("ninja.png");
+ }
+
+ .dragon:before{
+    background-image: url("dragon.png");
+    width: 600%;
+    height: 600%;
+    top:-20px ;
+    left: -20px;    
+    
+ }
 
 .enemyArea{
-    background-color: red;
+  
 }
