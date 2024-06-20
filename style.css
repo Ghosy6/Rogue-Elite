@@ -1,4 +1,43 @@
+:root{
+    --charClass: "";
+}
+
+#intro {
+   margin-top: 40px;
+   text-align: center;
+   font-size: 2rem;
+   width: 900px;
+}
+
+.charSelect{
+    position: relative;
+    width: 30%;
+    display: inline-block;
+    transition: linear;
+    transition-duration: 0.15s;
+    cursor: pointer;
+    vertical-align: top;
+    
+}
+
+.charSelect:hover{
+   transform: scale(1.1);
+    
+}
+
+.charPicture {
+    
+    position: relative;
+    width: 100%;
+    
+}
+
+.charDescription{
+ font-size: 1rem;
+}
+
 #statusBar{
+    display: none;
     width: 904px;
     height: 70px;
     background: black;
@@ -7,12 +46,13 @@
     font-size: 25px;
 }
 
+
 .statusItems{
     margin: 40px;
 }
 
 #main {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(90, auto);
     grid-template-rows: repeat(90, auto);
     border: 3px black solid;
@@ -24,6 +64,7 @@
     background-size: cover;
     }
 
+
 .boxItem {
     display: inline-block;
     padding: 0;
@@ -33,28 +74,32 @@
     background-color: black;
     border-radius: 5%;
     opacity: 1;
+    transition: 0.2s;
     }
 
 .player {
    position: relative;
-    
+   background: transparent;
+   transition: none;
 }
 
 .player:before{
-    width: 360%;
-    height: 360%;
+    width: 300%;
+    height: 300%;
     content: " ";
     position: absolute;
-    background-image: url("knight.jpg");
+    background-image: var(--charClass);
     background-position: center;
-    background-size: 130%;
+     background-repeat: no-repeat;
     overflow: visible;
-    top: -11px;
-    left: -11px;
+    background-size: contain;
+    top: -10px;
+    left: -10px;
+    
 }
 
 .playerArea {
-    background-color: rgb(9, 107, 74);
+    
 }
 
 .enemy {
@@ -102,3 +147,4 @@
 .enemyArea{
   
 }
+

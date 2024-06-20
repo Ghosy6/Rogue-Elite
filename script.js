@@ -1,6 +1,7 @@
 var characterClasses = [
     {
       name:"knight",
+      maxHp: 120,
       hp: 120,
       hitbox: 1,
       vievRange: 3,
@@ -14,6 +15,7 @@ var characterClasses = [
     },
     {
       name:"mage",
+      maxHp: 80,
       hp: 80,
       hitbox: 1,
       vievRange: 3,
@@ -27,6 +29,7 @@ var characterClasses = [
       },
        {
       name:"paladin",
+      maxHp: 100,
       hp: 100,
       hitbox: 1,
       vievRange: 3,
@@ -98,6 +101,8 @@ var enemyArray = [
 var enemyStats = {} 
 
 var main = document.getElementById("main")
+var statusbar = document.getElementById("statusBar")
+var maxHp = document.getElementById("maxHp")
 var HP = document.getElementById("HP")
 var exp = document.getElementById("exp")
 var lvl = document.getElementById("lvl")
@@ -106,10 +111,14 @@ var intro = document.getElementById("intro")
 
 function charSelect(x){
    var getId = x.getAttribute("id")
+   
    var playerStats = characterClasses[getId]
 
-   function updateUi(){
+   document.documentElement.style.setProperty('--charClass', `url("${characterClasses[getId].name}.png")` );
 
+   function updateUi(){
+    
+    maxHp.textContent = playerStats.maxHp
     HP.textContent = playerStats.hp
     exp.textContent = playerStats.exp
     lvl.textContent = playerStats.lvl
@@ -124,16 +133,21 @@ function getLvl (){
     
     if (playerStats.exp >= 45 && playerStats.exp < 75 ) {playerStats.lvl = 2 }
     if (playerStats.exp >= 75 && playerStats.exp < 120 ) {playerStats.lvl = 3 }
-    if (playerStats.exp >= 120 && playerStats.exp < 200 ) {playerStats.lvl = 4 }
+    if (playerStats.exp >= 120 && playerStats.exp < 300 ) {playerStats.lvl = 4 }
     
         
     if (currentLevel < playerStats.lvl ) {
-        playerStats.hp += 20
-        playerStats.dmg += 4
+       var lvlDiff = playerStats.lvl - currentLevel
+       for (let i = 0; i < lvlDiff; i++)
+        {   
+            playerStats.maxHp += 20
+            playerStats.hp += 20
+            playerStats.dmg += 4}
         
+            updateUi()
     }
 
-    updateUi()
+    
 }
 
 getLvl()
@@ -219,6 +233,7 @@ document.body.addEventListener('keydown', function (event) {
         
         
         player.style.opacity = "1"
+
         for (let i = 0; i < neighbourArr[playerStats.hitbox].length; i++){
             var playerIDX = player.id.slice(0, player.id.indexOf("-"))
             var playerIDY = player.id.slice(player.id.indexOf("-") +1)
@@ -231,42 +246,66 @@ document.body.addEventListener('keydown', function (event) {
         for (let i = 0; i < neighbourArr[playerStats.vievRange].length; i++){
             var playerIDX = player.id.slice(0, player.id.indexOf("-"))
             var playerIDY = player.id.slice(player.id.indexOf("-") +1)
-            var neighbourCheck = (Number(playerIDX) + neighbourArr[playerStats.vievRange][i][1]) + "-" + (Number(playerIDY) + neighbourArr[playerStats.vievRange][i][0])
-            var neighbour = document.getElementById(neighbourCheck)
-            neighbour.classList.add("visualArea")
-            neighbour.style.opacity = "0"
-            if (neighbour.classList.contains("enemyArea"))
-                {var playerGetsIntoVisual = neighbour.getAttribute("parent")
-                    var getEnemyVisual = document.getElementById(playerGetsIntoVisual)
-                    getEnemyVisual.classList.add(getEnemyVisual.getAttribute("enemytype"))
-                    getEnemyVisual.classList.add("visualArea")
-                    getEnemyVisual.style.opacity="1"
-                    var discoveredEnemyArea = this.querySelectorAll(`[parent="${playerGetsIntoVisual}"]`)
-                    discoveredEnemyArea.forEach((element)=>{
-                        element.classList.add("visualArea")
-                    })
-                }
-              
+            var neighbourCheck = (Number(playerIDX) + neighbourArr[playerStats.vievRange][i][0]) + "-" + (Number(playerIDY) + neighbourArr[playerStats.vievRange][i][1])
+            
+            if (document.getElementById(neighbourCheck)){
+                
+                var neighbour = document.getElementById(neighbourCheck)
+                neighbour.classList.add("visualArea")
+                neighbour.style.opacity = "0"
+                if (neighbour.classList.contains("enemyArea"))
+                    {var playerGetsIntoVisual = neighbour.getAttribute("parent")
+                        var getEnemyVisual = document.getElementById(playerGetsIntoVisual)
+                        getEnemyVisual.classList.add(getEnemyVisual.getAttribute("enemytype"))
+                        getEnemyVisual.classList.add("visualArea")
+                        getEnemyVisual.style.opacity="1"
+                        var discoveredEnemyArea = this.querySelectorAll(`[parent="${playerGetsIntoVisual}"]`)
+                        discoveredEnemyArea.forEach((element)=>{
+                            element.classList.add("visualArea")
+                        })
+                    }
+                   
+            }
+            
         }
         
     }
     
     if (playerGetsIntoAgro){
+
         var getEnemyId = document.getElementById(playerGetsIntoAgro)
         var getEnemyType = getEnemyId.getAttribute("enemytype")
         var createEnemy = enemyArray.find(x => x.name == getEnemyType)
+        
+        var playerCombatHp = playerStats.hp
+        var playerCombatDmg = playerStats.dmg
+        var playerCombatCrit = playerStats.crit
+        var playerCombatExp = playerStats.exp
+        var playerCombatLvl = playerStats.lvl
+        var playerCombatStartOfFight = playerStats.startOfFight
+        var playerCombatEveryThird = playerStats.everyThird
+
+       
+        console.log(playerStats.dmg, playerCombatDmg);
+
+
         enemyStats.hp = createEnemy.hp
         enemyStats.dmg = createEnemy.dmg
         enemyStats.exp = createEnemy.exp
         enemyStats.evade = createEnemy.evade
         enemyStats.lifesteal = createEnemy.lifesteal
         
-        while (playerStats.hp > 0 && enemyStats.hp > 0 ){
+        while (playerCombatHp > 0 && enemyStats.hp > 0 ){
             var evadeCheck = Math.floor(Math.random() * 100)
            
             if (evadeCheck >= createEnemy.evade){
                 
-                enemyStats.hp = enemyStats.hp - playerStats.dmg
+                let critCheck = Math.floor(Math.random() * 100)
+                if (critCheck < playerCombatCrit){
+                    enemyStats.hp = enemyStats.hp - playerCombatDmg
+            
+                    }
+                enemyStats.hp = enemyStats.hp - playerCombatDmg
             }
             if (enemyStats.hp <= 0 ) {
                 playerStats.exp += enemyStats.exp
@@ -275,8 +314,10 @@ document.body.addEventListener('keydown', function (event) {
                  break
                        }
                        
-            playerStats.hp = playerStats.hp - enemyStats.dmg
+            playerCombatHp = playerCombatHp - enemyStats.dmg
             enemyStats.hp += enemyStats.dmg * (enemyStats.lifesteal / 100)
+
+            playerStats.hp = playerCombatHp
             
             if (playerStats.hp <= 0) {
                 playerStats.hp = "DEAD"
@@ -296,21 +337,34 @@ document.body.addEventListener('keydown', function (event) {
                 item.removeAttribute("parent")
             })
         }
-         if (playerStats.hp <= 0) {console.log("GAME OVER")}
+        
         }
 
 
 });
 
+
+
+statusbar.style.display="block"
+main.style.display="grid"
+
 }
+
 
 var neighbourArr = [
     [],
-    [[-1,0],[0,1],[1,0],[0,-1],[-1,-1],[-1,1],[1,-1],[1,1]],
-    [[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[-2,0],[-1,0],[1,0],[2,0],[-2,1],[-1,1],[0,1],[1,1],[2,1],[-2,2],[-1,2],[0,2],[1,2],[2,2]],
-    [[-3,-3],[-2,-3],[-1,-3],[0,-3],[1,-3],[2,-3],[3,-3],[-3,-2],[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[3,-2],[-3,-1],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[3,-1],
-    [-3,0],[-2,0],[-1,0],[1,0],[2,0],[3,0],[-3,1],[-2,1],[-1,1],[0,1],[1,1],[2,1],[3,1],[-3,2],[-2,2],[-1,2],[0,2],[1,2],[2,2],[3,2],
-    [-3,3],[-2,3],[-1,3],[0,3],[1,3],[2,3],[3,3]]
+
+    [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]],
+
+    [[0,-3],[-1,-2],[0,-2],[1,-2],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[-3,0],[-2,0],[-1,0],[1,0],[2,0],[3,0],[-2,1],[-1,1],[0,1],[1,1],[2,1],
+    [-1,2],[0,2],[1,2],[0,3]            
+    ],
+
+    [[0,-5],[-1,-4],[0,-4],[1,-4],[-2,-3],[-1,-3],[0,-3],[1,-3],[2,-3],[-3,-2],[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[3,-2],
+    [-4,-1],[-3,-1],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[3,-1],[4,-1],[-5,0],[-4,0],[-3,0],[-2,0],[-1,0],[1,0],[2,0],[3,0],[4,0],[5,0],
+    [-4,1],[-3,1],[-2,1],[-1,1],[0,1],[1,1],[2,1],[3,1],[4,1],[-3,2],[-2,2],[-1,2],[0,2],[1,2],[2,2],[3,2],
+     [-2,3],[-1,3],[0,3],[1,3],[2,3],[-1,4],[0,4],[1,4],[0,5]]
 ]
 
 var enemyLocationArray = [ "17-17","79-36","74-55", "56-77", "8-30", "15-60", "60-15", "35-82", "40-40" ]
+
