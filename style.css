@@ -36,9 +36,14 @@
  font-size: 1rem;
 }
 
-#statusBar{
+#main {
     display: none;
-    width: 904px;
+    width: 1300px;
+}
+
+#statusBar{
+    
+    width: 1300px;
     height: 70px;
     background: black;
     color: red;
@@ -51,18 +56,58 @@
     margin: 40px;
 }
 
-#main {
-    display: none;
+#screenAndSideBar {
+    display: flex;
+    width: 1300px;
+    height: 900px;
+    
+    }
+
+ #screenWindow {
+    
+    margin: 0;
+    width: 70%;
+    height: 100%;
+    background: black;
+    
+    }   
+
+#screen {
+    display: grid;
     grid-template-columns: repeat(90, auto);
     grid-template-rows: repeat(90, auto);
     border: 3px black solid;
-    width: 900px;
-    height: 850px;
+    width: 100%;
+    height: 840px;
     background-image: url("background.jpg");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
     }
+
+ 
+    
+
+#sideBar {
+    display: flex;
+    justify-content: end;
+    flex-direction: column;
+    margin: 0;
+    width: 30%;
+    height: 100%;
+    font-size: 1rem;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: rgb(228, 228, 238);
+}
+
+#combatLog {
+    color: white;
+    background-color: black;
+    height: 20%;
+    overflow: auto;
+    
+}
+
 
 
 .boxItem {

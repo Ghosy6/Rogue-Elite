@@ -101,13 +101,25 @@ var enemyArray = [
 var enemyStats = {} 
 
 var main = document.getElementById("main")
+var screen = document.getElementById("screen")
 var statusbar = document.getElementById("statusBar")
+var combatLog = document.getElementById("combatLog")
+var combatLogArr = []
 var maxHp = document.getElementById("maxHp")
 var HP = document.getElementById("HP")
 var exp = document.getElementById("exp")
 var lvl = document.getElementById("lvl")
 var dmg = document.getElementById("dmg")
 var intro = document.getElementById("intro")
+var disableMove = false
+
+function resolveTimer() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve('resolved');
+      },1000);
+    });
+  }
 
 function charSelect(x){
    var getId = x.getAttribute("id")
@@ -143,6 +155,8 @@ function getLvl (){
             playerStats.maxHp += 20
             playerStats.hp += 20
             playerStats.dmg += 4}
+
+           combatLogArr.push(`You have gained level ${playerStats.lvl}`)
         
             updateUi()
     }
@@ -159,7 +173,7 @@ for (var i = 0; i < 90; i++){
         var boxItem = document.createElement("div")
         boxItem.setAttribute("id", j + "-" + i)
         boxItem.classList.add("boxItem")
-        main.appendChild(boxItem)
+        screen.appendChild(boxItem)
     }
 
 }
@@ -189,31 +203,34 @@ while (enemyLocationArray.length){
 
 }
 
-document.body.addEventListener('keydown', function (event) {
+document.body.addEventListener('keydown', async function (event) {
     const key = event.key;
     var location = player.id
-    switch (key) {
-        case "a":
-           var getCoords = Number(location.slice(0, location.indexOf("-"))) - 1
-           var newCoords = getCoords + "-" + location.slice(location.indexOf("-") +1)
-           var newCoords2 = (getCoords - 1 )+ "-" + location.slice(location.indexOf("-") +1)
-            break;
-        case "d":
-            var getCoords = Number(location.slice(0, location.indexOf("-"))) + 1
-            var newCoords = getCoords + "-" + location.slice(location.indexOf("-") +1)
-            var newCoords2 = (getCoords +1) + "-" + location.slice(location.indexOf("-") +1)
-            break;
-        case "w":
-            var getCoords = Number(location.slice(location.indexOf("-") +1)) - 1
-            var newCoords = location.slice(0, location.indexOf("-")) + "-" + getCoords  
-            var newCoords2 = location.slice(0, location.indexOf("-")) + "-" + (getCoords -1) 
-            break;
-        case "s":
-            var getCoords = Number(location.slice(location.indexOf("-") +1)) + 1
-            var newCoords = location.slice(0, location.indexOf("-")) + "-" + getCoords  
-            var newCoords2 = location.slice(0, location.indexOf("-")) + "-" + (getCoords +1)
-            break;
-    }
+    if (!disableMove){
+        switch (key) {
+            case "a":
+               var getCoords = Number(location.slice(0, location.indexOf("-"))) - 1
+               var newCoords = getCoords + "-" + location.slice(location.indexOf("-") +1)
+               var newCoords2 = (getCoords - 1 )+ "-" + location.slice(location.indexOf("-") +1)
+                break;
+            case "d":
+                var getCoords = Number(location.slice(0, location.indexOf("-"))) + 1
+                var newCoords = getCoords + "-" + location.slice(location.indexOf("-") +1)
+                var newCoords2 = (getCoords +1) + "-" + location.slice(location.indexOf("-") +1)
+                break;
+            case "w":
+                var getCoords = Number(location.slice(location.indexOf("-") +1)) - 1
+                var newCoords = location.slice(0, location.indexOf("-")) + "-" + getCoords  
+                var newCoords2 = location.slice(0, location.indexOf("-")) + "-" + (getCoords -1) 
+                break;
+            case "s":
+                var getCoords = Number(location.slice(location.indexOf("-") +1)) + 1
+                var newCoords = location.slice(0, location.indexOf("-")) + "-" + getCoords  
+                var newCoords2 = location.slice(0, location.indexOf("-")) + "-" + (getCoords +1)
+                break;
+        }
+    } 
+    
 
     if (document.getElementById(newCoords2)){
        
@@ -272,6 +289,7 @@ document.body.addEventListener('keydown', function (event) {
     }
     
     if (playerGetsIntoAgro){
+        disableMove = true
 
         var getEnemyId = document.getElementById(playerGetsIntoAgro)
         var getEnemyType = getEnemyId.getAttribute("enemytype")
@@ -285,9 +303,6 @@ document.body.addEventListener('keydown', function (event) {
         var playerCombatStartOfFight = playerStats.startOfFight
         var playerCombatEveryThird = playerStats.everyThird
 
-       
-        console.log(playerStats.dmg, playerCombatDmg);
-
 
         enemyStats.hp = createEnemy.hp
         enemyStats.dmg = createEnemy.dmg
@@ -296,26 +311,48 @@ document.body.addEventListener('keydown', function (event) {
         enemyStats.lifesteal = createEnemy.lifesteal
         
         while (playerCombatHp > 0 && enemyStats.hp > 0 ){
+            combatLogArr = []
             var evadeCheck = Math.floor(Math.random() * 100)
-           
+
+            evadeCheck < createEnemy.evade ? combatLogArr.push("You missed the attack") : null
+
             if (evadeCheck >= createEnemy.evade){
                 
                 let critCheck = Math.floor(Math.random() * 100)
                 if (critCheck < playerCombatCrit){
                     enemyStats.hp = enemyStats.hp - playerCombatDmg
+                    combatLogArr.push(`You crit for ${playerCombatDmg *2} dmg`)
             
                     }
-                enemyStats.hp = enemyStats.hp - playerCombatDmg
+                 enemyStats.hp = enemyStats.hp - playerCombatDmg
+                 critCheck < playerCombatCrit ? "" : combatLogArr.push(`You have dealt ${playerCombatDmg} dmg`)
             }
             if (enemyStats.hp <= 0 ) {
+                
                 playerStats.exp += enemyStats.exp
+
+                combatLogArr.push(`Enemy defeated, gained ${enemyStats.exp} exp`)
                 getLvl()
                 updateUi()
+
+                for (let i = 0; i < combatLogArr.length; i++){
+                    
+                    var combatListItem = document.createElement("li")
+                    combatListItem.innerText = combatLogArr[i]
+                    combatLog.insertBefore(combatListItem, combatLog.firstChild);
+                    var delay = await resolveTimer()
+                    HP.textContent = playerCombatHp
+                }
                  break
                        }
                        
             playerCombatHp = playerCombatHp - enemyStats.dmg
-            enemyStats.hp += enemyStats.dmg * (enemyStats.lifesteal / 100)
+
+            var enemyLifestole = enemyStats.dmg * (enemyStats.lifesteal / 100)
+            enemyStats.hp += enemyLifestole
+
+            enemyStats.lifesteal > 0 ? combatLogArr.push(`Enemy deals ${enemyStats.dmg} dmg to you and recovers ${enemyLifestole} HP from lifesteal`) 
+            : combatLogArr.push(`Enemy deals ${enemyStats.dmg} dmg to you`)
 
             playerStats.hp = playerCombatHp
             
@@ -325,6 +362,15 @@ document.body.addEventListener('keydown', function (event) {
                 break
                       }
             
+            for (let i = 0; i < combatLogArr.length; i++){
+                
+                var combatListItem = document.createElement("li")
+                combatListItem.innerText = combatLogArr[i]
+                combatLog.insertBefore(combatListItem, combatLog.firstChild);
+                
+                var delay = await resolveTimer()
+                HP.textContent = playerCombatHp
+            }
         }
 
         HP.textContent = playerStats.hp
@@ -338,15 +384,17 @@ document.body.addEventListener('keydown', function (event) {
             })
         }
         
-        }
+        disableMove = false
+    }
 
 
 });
 
 
 
-statusbar.style.display="block"
-main.style.display="grid"
+
+main.style.display = "block"
+intro.style.display = "none"
 
 }
 
@@ -356,14 +404,14 @@ var neighbourArr = [
 
     [[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]],
 
-    [[0,-3],[-1,-2],[0,-2],[1,-2],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[-3,0],[-2,0],[-1,0],[1,0],[2,0],[3,0],[-2,1],[-1,1],[0,1],[1,1],[2,1],
-    [-1,2],[0,2],[1,2],[0,3]            
+    [[-1,-2],[0,-2],[1,-2],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[-2,0],[-1,0],[1,0],[2,0],[-2,1],[-1,1],[0,1],[1,1],[2,1],
+    [-1,2],[0,2],[1,2]           
     ],
 
-    [[0,-5],[-1,-4],[0,-4],[1,-4],[-2,-3],[-1,-3],[0,-3],[1,-3],[2,-3],[-3,-2],[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[3,-2],
-    [-4,-1],[-3,-1],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[3,-1],[4,-1],[-5,0],[-4,0],[-3,0],[-2,0],[-1,0],[1,0],[2,0],[3,0],[4,0],[5,0],
+    [[-1,-4],[0,-4],[1,-4],[-2,-3],[-1,-3],[0,-3],[1,-3],[2,-3],[-3,-2],[-2,-2],[-1,-2],[0,-2],[1,-2],[2,-2],[3,-2],
+    [-4,-1],[-3,-1],[-2,-1],[-1,-1],[0,-1],[1,-1],[2,-1],[3,-1],[4,-1],[-4,0],[-3,0],[-2,0],[-1,0],[1,0],[2,0],[3,0],[4,0],
     [-4,1],[-3,1],[-2,1],[-1,1],[0,1],[1,1],[2,1],[3,1],[4,1],[-3,2],[-2,2],[-1,2],[0,2],[1,2],[2,2],[3,2],
-     [-2,3],[-1,3],[0,3],[1,3],[2,3],[-1,4],[0,4],[1,4],[0,5]]
+     [-2,3],[-1,3],[0,3],[1,3],[2,3],[-1,4],[0,4],[1,4]]
 ]
 
 var enemyLocationArray = [ "17-17","79-36","74-55", "56-77", "8-30", "15-60", "60-15", "35-82", "40-40" ]
