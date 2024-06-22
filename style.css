@@ -101,11 +101,35 @@
 }
 
 #combatLog {
+    display: flex;
+    flex-direction: column-reverse;
     color: white;
     background-color: black;
     height: 20%;
     overflow: auto;
     
+}
+
+.list-item-lvl {
+    color: yellow;
+    font-size: 1.1rem;
+}
+
+.list-item-dmg{
+    color: red;
+    font-size: 1.1rem;
+}
+
+.list-item-miss{
+    color: rgb(143, 142, 142);
+}
+
+.list-item-heal{
+    color: rgb(39, 150, 63);
+}
+
+.list-item-shield{
+    color: rgb(74, 74, 226);
 }
 
 
