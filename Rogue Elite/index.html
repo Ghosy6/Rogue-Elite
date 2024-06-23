@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Rogue Elite</title>
+</head>
+<body>
+     <div id="main">
+
+        <div id="status-bar">
+            <span><span class="statusItems">HP: <span id="HP"></span> / <span id="maxHp"></span>
+            <span><span class="statusItems">Lvl: <span id="lvl"></span>
+            <span><span class="statusItems">Exp: <span id="exp"></span>
+            <span><span class="statusItems">Dmg: <span id="dmg"></span>
+     
+        </div>
+
+        <div id="screenAndSideBar">
+            <div id="screenWindow">
+                
+                <div id="screen">
+
+                </div>
+            </div>
+
+            <div id="side-bar">
+                <div id="combat-screen">
+                    <div id="combat-screen-player" class="combat-screen-char">
+        
+                    </div>
+                    <div id="combat-screen-enemy" class="combat-screen-char">
+        
+                    </div>
+                
+                 </div> 
+               
+                <ol id="combat-log">
+                    
+                </ol>
+            </div>
+         </div>
+        
+         </div>
+        
+    
+    <div id="intro">
+        <div id="0" class="char-select" onclick="charSelect(this)">
+            <img src="knight.png" alt="" class="char-picture">
+            <div>
+                Knight
+            </div>
+            <div class="char-description">
+                <p>Melee fighter with high healt and physical dmg</p>
+                
+            </div>
+        </div>
+        <div id="1" class="char-select" onclick="charSelect(this)">
+            <img src="mage.png" alt="" class="char-picture">
+            <div>
+                Mage
+            </div>
+        </div>
+        <div id="2" class="char-select" onclick="charSelect(this)">
+            <img src="paladin.png" alt="" class="char-picture">
+            <div>
+                Paladin
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="script.js"></script>
+</body>
+</html>
