@@ -98,15 +98,90 @@
     height: 100%;
     font-size: 1rem;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    background-color: rgb(228, 228, 238);
+    background-color: black
 }
+
+#hp-bar {
+    display: flex;
+    width: 100%;
+    height: 1.5%;
+    background-color: black;
+    justify-content: end;
+    gap: 4px;
+   
+}
+
+#hp-bar-player {
+    border: 1px gold solid;
+    display: flex;
+    width: 50%;
+    text-align: center;
+
+}
+
+#hp-bar-player-value {
+    background-color: red;
+    transition: 1s;
+    
+    }
+
+#hp-bar-player-nums {
+    position: absolute;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 0.7rem;
+    color: white;
+    left: 1000px;
+    
+}  
+
+#shield-bar {
+    position: absolute;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 0.7rem;
+    color: white;
+    left: 930px;
+    top: 550px;
+    background: rgb(80, 80, 219);
+    height: 210px;
+    width: 175px;
+    border-radius: 50%;
+    opacity: 0.4;
+    content: " ";
+    transition: 1.5s;
+    scale: 0;
+}
+
+
+
+#hp-bar-enemy {
+    border: 1px gold solid;
+    display: flex;
+    width: 50%;
+    visibility: hidden;
+}
+
+#hp-bar-enemy-value {
+    background-color: red;
+    transition: width 1s;
+    
+}
+
+#hp-bar-enemy-nums {
+    position: absolute;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 0.7rem;
+    color: white;
+    left: 1200px;
+    
+}  
+
 
 #combat-screen { 
  
  display: flex;
  width: 100%;
  height: 25%;
- border: 2px black solid;
+
  
 }
 
@@ -118,21 +193,23 @@
 }
 
 #combat-screen-player {
-    background-color: blue;
+    background-color: black;
     background-image: var(--charClass);
     background-position: center;
     background-repeat: no-repeat;
     overflow: visible;
     background-size: contain;
+   
 }
 
 #combat-screen-enemy {
-    background-color: red;
+    background-color: black;
     background-image: var(--enemyType);
     background-position: center;
     background-repeat: no-repeat;
     overflow: visible;
     background-size: contain;
+    visibility: hidden;
 }
 
 #combat-log {

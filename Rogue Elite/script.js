@@ -57,7 +57,7 @@ var characterClasses = [
        {
       name:"paladin",
       maxHp: 100,
-      hp: 100,
+      hp: 80,
       shield: 0,
       hitbox: 1,
       vievRange: 3,
@@ -71,7 +71,7 @@ var characterClasses = [
             {
                 name: "Holy Light",
                 dmg: 0,
-                heal: 10,
+                heal: 20,
                 shield: 0,
                 tag: function(){
                     return `<li>You cast holy light and recover <span class='list-item-heal'>${this.heal} health</span></li>`;
@@ -151,13 +151,18 @@ var screen = document.getElementById("screen")
 var statusbar = document.getElementById("status-bar")
 var combatLog = document.getElementById("combat-log")
 var combatLogArr = []
-var maxHp = document.getElementById("maxHp")
-var HP = document.getElementById("HP")
+var playerHP = document.getElementById("hp-bar-player-nums")
+var playerHealthBar = document.getElementById("hp-bar-player-value")
+var playerShieldBar = document.getElementById("shield-bar")
+var enemyHP = document.getElementById("hp-bar-enemy-nums")
+var enemyHealthBarValue = document.getElementById("hp-bar-enemy-value")
+var enemyHealthBar = document.getElementById("hp-bar-enemy")
 var exp = document.getElementById("exp")
 var lvl = document.getElementById("lvl")
 var dmg = document.getElementById("dmg")
 var intro = document.getElementById("intro")
 var combatScreen = document.getElementById("combat-screen")
+var combatScreenEnemy = document.getElementById("combat-screen-enemy")
 var disableMove = false
 
 function resolveTimer() {
@@ -174,11 +179,31 @@ function charSelect(x){
    var playerStats = characterClasses[getId]
 
    document.documentElement.style.setProperty('--charClass', `url("${characterClasses[getId].name}.png")` );
+    
+   function updateHp(){
+
+    playerStats.hp <= 0 ? playerStats.hp = 0 : null
+
+    playerHP.textContent = playerStats.hp + "/" + playerStats.maxHp
+
+    playerHealthBar.style.width = `${playerStats.hp / (playerStats.maxHp / 100)}%`
+
+
+
+   }
+
+   function updateEnemyHp(){
+
+    enemyStats.hp <= 0 ? enemyStats.hp = 0 : null;
+    
+    enemyHP.textContent = enemyStats.hp + "/" + enemyStats.maxHp
+
+    enemyHealthBarValue.style.width = `${enemyStats.hp / (enemyStats.maxHp / 100)}%`
+   }
 
    function updateUi(){
     
-    maxHp.textContent = playerStats.maxHp
-    HP.textContent = playerStats.hp
+    updateHp()
     exp.textContent = playerStats.exp
     lvl.textContent = playerStats.lvl
     dmg.textContent = playerStats.dmg
@@ -202,7 +227,7 @@ function getLvl (){
             playerStats.maxHp += 20
             playerStats.hp += 20
             playerStats.dmg += 4
-            playerStats.startOfFight[0].dmg += 5
+            
         }
 
            combatLogArr.push(`<li class='list-item-lvl'>You have gained level ${playerStats.lvl}</li>`)
@@ -347,13 +372,14 @@ document.body.addEventListener('keydown', async function (event) {
 
         var getEnemyType = getEnemyId.getAttribute("enemytype")
 
-        var createEnemy = enemyArray.find(x => x.name == getEnemyType)
+        var loadEnemy = enemyArray.find(x => x.name == getEnemyType)
 
         document.documentElement.style.setProperty('--enemyType', `url("${getEnemyType}.png")` );
 
-        combatScreen.style.visibility="visible"
+        combatScreenEnemy.style.visibility="visible"
+        enemyHealthBar.style.visibility="visible"
         
-        var playerCombatHp = playerStats.hp
+        
         var playerCombatShield = playerStats.shield
         var checkForStartOfFight = true
         var playerCombatDmg = playerStats.dmg
@@ -363,43 +389,51 @@ document.body.addEventListener('keydown', async function (event) {
         var playerCombatEveryThird = playerStats.everyThird
 
 
-        enemyStats.hp = createEnemy.hp
-        enemyStats.dmg = createEnemy.dmg
-        enemyStats.exp = createEnemy.exp
-        enemyStats.evade = createEnemy.evade
-        enemyStats.lifesteal = createEnemy.lifesteal
+        enemyStats.hp = loadEnemy.hp
+        enemyStats.maxHp = loadEnemy.hp
+        enemyStats.dmg = loadEnemy.dmg
+        enemyStats.exp = loadEnemy.exp
+        enemyStats.evade = loadEnemy.evade
+        enemyStats.lifesteal = loadEnemy.lifesteal
 
+        updateEnemyHp()
+        updateHp()
         
-        
-        while (playerCombatHp > 0 && enemyStats.hp > 0 ){
+        while (playerStats.hp > 0 && enemyStats.hp > 0 ){
             combatLogArr = []
 
-            console.log(enemyStats.hp);
             
             if ( checkForStartOfFight ) {
                 for (let i = 0; i < playerStats.startOfFight.length; i++)
                     {   
                         playerCombatShield = playerCombatShield + playerStats.startOfFight[i].shield
 
-                        playerCombatHp = playerCombatHp + playerStats.startOfFight[i].heal
+                        playerStats.hp = playerStats.hp + playerStats.startOfFight[i].heal
                         
                         enemyStats.hp =  enemyStats.hp - playerStats.startOfFight[i].dmg
                        
                         combatLogArr.push( playerStats.startOfFight[i].tag())
                     }
 
-                playerCombatHp > playerStats.maxHp ? playerCombatHp = playerStats.maxHp : null
+                    playerStats.hp > playerStats.maxHp ? playerStats.hp = playerStats.maxHp : null
+
+                    playerCombatShield > 0 ? playerShieldBar.style.scale = "1" : null
                 
                 for (let i = 0; i < combatLogArr.length; i++){
                     
+                    updateHp()
                     var combatListItem = combatLogArr[i]
                     combatLog.innerHTML = combatListItem + combatLog.innerHTML
                     var delay = await resolveTimer()
-                    HP.textContent = playerCombatHp
+                    updateEnemyHp()
                 }
+
                 checkForStartOfFight = false 
                 combatLogArr = []
             }
+            
+           
+            
 
             if (enemyStats.hp > 0){
 
@@ -416,6 +450,7 @@ document.body.addEventListener('keydown', async function (event) {
                 
                         }
                      enemyStats.hp = enemyStats.hp - playerCombatDmg
+
                      critCheck < playerCombatCrit ? "" : combatLogArr.push(`<li>You have dealt <span class='list-item-dmg'> ${playerCombatDmg} damage</span> </li>`)
                 }
             }
@@ -428,6 +463,7 @@ document.body.addEventListener('keydown', async function (event) {
                 combatLogArr.push(`<li>Enemy defeated, gained  <span class='list-item-lvl'>${enemyStats.exp} exp</span></li>`)
                 getLvl()
                 updateUi()
+                updateEnemyHp()
 
                 for (let i = 0; i < combatLogArr.length; i++){
                     
@@ -448,7 +484,7 @@ document.body.addEventListener('keydown', async function (event) {
 
                 if (playerCombatShield < 0)  
                     {
-                        playerCombatHp = playerCombatHp + playerCombatShield
+                        playerStats.hp = playerStats.hp + playerCombatShield
                         checkForShieldBreak =  Math.abs(playerCombatShield)
                     } 
                 
@@ -461,7 +497,7 @@ document.body.addEventListener('keydown', async function (event) {
 
            else {
 
-            playerCombatHp = playerCombatHp - enemyStats.dmg
+            playerStats.hp = playerStats.hp - enemyStats.dmg
 
             var enemyLifestole = enemyStats.dmg * (enemyStats.lifesteal / 100)
             enemyStats.hp += enemyLifestole
@@ -470,22 +506,23 @@ document.body.addEventListener('keydown', async function (event) {
                 <span class='list-item-heal'>${enemyLifestole} HP</span> from lifesteal</li>`) 
             : combatLogArr.push(`<li>Enemy deals <span class='list-item-dmg'> ${enemyStats.dmg} damage</span> to you</li>`)
 
-            playerStats.hp = playerCombatHp
+            
         }
             
             if (playerStats.hp <= 0) {
 
-                playerStats.hp = "DEAD"
-
-                HP.textContent = playerStats.hp
+               
 
                 for (let i = 0; i < combatLogArr.length; i++){
                     
                         var combatListItem = combatLogArr[i]
                         combatLog.innerHTML = combatListItem + combatLog.innerHTML
                         var delay = await resolveTimer()
-                        
+                        updateHp()
+                        updateEnemyHp()
                     }
+
+                     
 
                 break
 
@@ -496,11 +533,15 @@ document.body.addEventListener('keydown', async function (event) {
                         var combatListItem = combatLogArr[i]
                         combatLog.innerHTML = combatListItem + combatLog.innerHTML
                         var delay = await resolveTimer()
-                        HP.textContent = playerCombatHp
+                        updateHp()
+                        updateEnemyHp()
+
+                       
                     }
         }
 
-        HP.textContent = playerStats.hp
+        updateHp()
+        updateEnemyHp()
 
         if (enemyStats.hp <= 0) {
             getEnemyId.setAttribute("class", "boxItem")
@@ -511,7 +552,14 @@ document.body.addEventListener('keydown', async function (event) {
                 item.removeAttribute("parent")
             })
             getEnemyId.removeAttribute("enemytype")
+
+            setTimeout(function(){
+                combatScreenEnemy.style.visibility="hidden"
+            enemyHealthBar.style.visibility="hidden"
+            },2000)
         }
+
+        
         
         disableMove = false
     }
